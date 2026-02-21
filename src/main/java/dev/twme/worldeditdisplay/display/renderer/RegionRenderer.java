@@ -184,11 +184,11 @@ public abstract class RegionRenderer<T extends Region> {
         Vector3f end = line.end();
         float length = start.distance(end) + thickness;
         Vector3f midpoint = new Vector3f((start.x + end.x)/2, (start.y + end.y)/2, (start.z + end.z)/2);
-        Location spawnLoc = new Location(player.getWorld(), player.getLocation().x(), player.getLocation().y(), player.getLocation().z());
+        // Spawn the display entity at the midpoint in-world (not relative to player) to avoid chunk-unload flicker
+        Location spawnLoc = new Location(player.getWorld(), midpoint.x, midpoint.y, midpoint.z);
         WrapperEntity entity = createEntity(EntityTypes.ITEM_DISPLAY, spawnLoc);
         ItemDisplayMeta meta = (ItemDisplayMeta) entity.getEntityMeta();
-        Vector3f playerPos = new Vector3f((float) spawnLoc.getX(), (float) spawnLoc.getY(), (float) spawnLoc.getZ());
-        Vector3f translation = new Vector3f(midpoint).sub(playerPos);
+        Vector3f translation = new Vector3f(0, 0, 0); // already at midpoint
         Vector3f direction = new Vector3f(end).sub(start).normalize();
         meta.setItem(SpigotConversionUtil.fromBukkitItemStack(new ItemStack(material)));
         meta.setDisplayType(ItemDisplayMeta.DisplayType.NONE);
