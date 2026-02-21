@@ -2,6 +2,7 @@ package dev.twme.worldeditdisplay.config;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.UUID;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -209,6 +210,12 @@ public class PlayerRenderSettings {
 
         if (value instanceof Number && !validateNumericValue(path, ((Number) value).doubleValue())) return false;
 
+        Object current = config.get(path);
+        // avoid pointless disk writes if nothing changed
+        if (Objects.equals(current, value)) {
+            return true;
+        }
+
         config.set(path, value);
         save();
         load();
@@ -235,7 +242,12 @@ public class PlayerRenderSettings {
     }
 
     /** Reset a setting to server default */
-    public void reset(String path) { config.set(path, null); save(); load(); }
+    public void reset(String path) {
+        if (config.get(path) == null) return; // no change
+        config.set(path, null);
+        save();
+        load();
+    }
 
     /** Reset all player settings */
     public void resetAll() {
